@@ -11,6 +11,9 @@
   "scripts": {
     "download:dev": "theme download -d . -e development",
     "deploy:dev": "theme deploy --env=development",
-    "watch": "theme watch"
+    "watch": "concurrently \"theme watch\" \"start https://cadence-labs-candidate-test.myshopify.com/?preview_theme_id=143758885089\""
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
   }
 }
