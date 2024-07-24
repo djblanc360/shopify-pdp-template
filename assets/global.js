@@ -940,13 +940,39 @@ customElements.define('variant-radios', VariantRadios);
 class VariantSwatches extends VariantSelects {
   constructor() {
     super();
+    // this.gridComponent = this.querySelector('grid-component');
+    // this.sliderComponent = this.querySelector('slider-component');
+    // console.log('gridComponent: ', this.gridComponent);
+  }
+
+  connectedCallback() {
+    this.updateOptions();
+  }
+
+  getOptions() {
+    // console.log('getOptions');
+
+
   }
 
   updateOptions() {
-    const fieldsets = Array.from(this.querySelectorAll('fieldset'));
+    // const sets = Array.from(this.querySelectorAll('ul'));
+    // sets.forEach((set) => {
+    //   set.querySelectorAll('li input')
+    //   this.options = Array.from(set.querySelectorAll('li input')).filter((radio) => radio.checked).map((radio) => radio.value);
+    //   console.log('this.options: ', this.options);
+    // });
+    
+    // const fieldsets = Array.from(this.querySelectorAll('ul'));
+    // this.options = fieldsets.map((fieldset) => {
+    //   return Array.from(fieldset.querySelectorAll('li input')).find((radio) => radio.checked).value;
+    // });
+    const fieldsets = Array.from(this.querySelectorAll('ul'));
     this.options = fieldsets.map((fieldset) => {
-      return Array.from(fieldset.querySelectorAll('input')).find((radio) => radio.checked).value;
-    });
+      const checkedRadio = Array.from(fieldset.querySelectorAll('li input')).find((radio) => radio.checked);
+      return checkedRadio ? checkedRadio.value : null;
+    }).filter(value => value !== null);
+    console.log('this.options: ', this.options);
   }
 }
 
