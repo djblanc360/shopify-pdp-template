@@ -749,6 +749,37 @@ class SlideshowComponent extends SliderComponent {
 
 customElements.define('slideshow-component', SlideshowComponent);
 
+class GridComponent extends HTMLElement {
+  constructor() {
+    super();
+    this.grid = this.querySelector('[id^="Grid-"]');
+    this.gridItems = this.querySelectorAll('[id^="GridItem-"]');
+    this.currentPageElement = this.querySelector('.grid-counter--current');
+
+    this.initPages();
+
+  }
+
+
+  initPages() {
+    this.gridItemsToShow = Array.from(this.gridItems).filter(element => element.clientWidth > 0);
+    this.update();
+  }
+
+  resetPages() {
+    this.gridItems = this.querySelectorAll('[id^="GridItem-"]');
+    this.initPages();
+  }
+
+  update() {
+    const previousPage = this.currentPage;
+    this.currentPage = Math.round(this.grid.scrollTop / this.gridItemOffset) + 1;
+  }
+
+}
+
+customElements.define('grid-component', GridComponent);
+      
 class VariantSelects extends HTMLElement {
   constructor() {
     super();
@@ -905,6 +936,21 @@ class VariantRadios extends VariantSelects {
 }
 
 customElements.define('variant-radios', VariantRadios);
+
+class VariantSwatches extends VariantSelects {
+  constructor() {
+    super();
+  }
+
+  updateOptions() {
+    const fieldsets = Array.from(this.querySelectorAll('fieldset'));
+    this.options = fieldsets.map((fieldset) => {
+      return Array.from(fieldset.querySelectorAll('input')).find((radio) => radio.checked).value;
+    });
+  }
+}
+
+customElements.define('variant-swatches', VariantSwatches);
 
 class ProductRecommendations extends HTMLElement {
   constructor() {
