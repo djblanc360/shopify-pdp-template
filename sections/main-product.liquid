@@ -59,7 +59,7 @@
         data-desktop-layout="{{ section.settings.gallery_layout }}"
       >
         <div id="GalleryStatus-{{ section.id }}" class="visually-hidden" role="status"></div>
-        <slider-component id="GalleryViewer-{{ section.id }}" class="slider-mobile-gutter">
+        <slider-component id="GalleryViewer-{{ section.id }}" class="slider-mobile-gutter main">
           <a class="skip-to-content-link button visually-hidden quick-add-hidden" href="#ProductInfo-{{ section.id }}">
             {{ "accessibility.skip_to_product_info" | t }}
           </a>
@@ -384,7 +384,8 @@
                   {{ 'products.product.quantity.label' | t }}
                 </label>
 
-                <quantity-input class="quantity">
+                <quantity-total-price>
+                  <div class="quantity">
                   <button class="quantity__button no-js-hidden" name="minus" type="button">
                     <span class="visually-hidden">
                       {{- 'products.product.quantity.decrease' | t: product: product.title | escape -}}
@@ -399,6 +400,9 @@
                     min="1"
                     value="1"
                     form="{{ product_form_id }}"
+                    price="{{ product.selected_or_first_available_variant.price }}"
+                    currency="{{ shop.currency }}"
+                    currencySymbol="{{ shop.currency_symbol }}"
                   >
                   <button class="quantity__button no-js-hidden" name="plus" type="button">
                     <span class="visually-hidden">
@@ -406,7 +410,19 @@
                     </span>
                     {% render 'icon-plus' %}
                   </button>
-                </quantity-input>
+                  </div>
+
+                  <div class="quantity__total-price-wrapper">
+                    <span>total:</span>
+                    <span class="quantity__total-price" aria-hidden="true">
+                      {{ product.selected_or_first_available_variant.price | money }}
+                    </span>
+                    <span class="visually-hidden">
+                      {{ 'products.product.quantity.total_price' | t: product: product.title | escape }}
+                    </span>
+                  </div>
+                </quantity-total-price>
+                
               </div>
             {%- when 'popup' -%}
               <modal-opener
@@ -501,6 +517,121 @@
                       {{ product.variants | json }}
                     </script>
                   </variant-radios>
+                {%- elsif block.settings.picker_type == 'swatches' -%}
+                  <variant-swatches
+                      class="no-js-hidden"
+                      data-section="{{ section.id }}"
+                      data-url="{{ product.url }}"
+                      {{ block.shopify_attributes }}
+                    >
+
+
+                    <grid-component
+                      id="GridThumbnails-{{ section.id }}"
+                      class="quick-add-hidden small-hide "
+                      >
+
+                  
+                  
+                        {%- for option in product.options_with_values -%}
+                          <fieldset class="js product-form__input">
+                            <legend class="form__label">{{ option.name }}: {{ option.selected_value }}</legend>
+                            <ul
+                              id="Grid-Thumbnails-{{ section.id }}"
+                              class="list-unstyled thumbnail-grid"
+                            >
+                            {%- for value in option.values -%}
+                              {%- assign variant = product.variants | where: "option1", value | first -%}
+                              <li
+                                id="GridItem-Thumbnails-{{ section.id }}-{{ forloop.index0 }}"
+                                class="grid__item"
+                                data-variant-id="{{ variant.id }}"
+                              >
+                                <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}">
+                                  <input
+                                    type="radio"
+                                    id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                                    name="{{ option.name }}"
+                                    value="{{ value | escape }}"
+                                    form="{{ product_form_id }}"
+                                    {% if option.selected_value == value %}
+                                      checked
+                                    {% endif %}
+                                  >
+                                  {% render 'product-thumbnail', media: variant.featured_media, position: forloop.index, modal_id: section.id, disable_modal: true %}
+                                </label>
+                              </li>
+                            {%- endfor -%}
+                            </ul>
+                          </fieldset>
+                        {%- endfor -%}
+                  
+                  
+                    </grid-component>
+
+                    <slider-component class="thumbnail-slider slider-mobile-gutter quick-add-hidden medium-hide thumbnail-slider--no-slide">
+                      
+                        {%- for option in product.options_with_values -%}
+                          
+                            <fieldset class="js product-form__input">
+                              <legend class="form__label">{{ option.name }}: {{ option.selected_value }}</legend>
+                              <ul id="Slider-{{ section.id }}" class="thumbnail-list list-unstyled slider slider--mobile slider--tablet-up grid grid--peek">
+                              {%- for value in option.values -%}
+                                {%- assign variant = product.variants | where: "option1", value | first -%}
+                                <li id="Slide-{{ section.id }}-{{ forloop.index }}" class="thumbnail-list__item slider__slide grid__item">
+                                  <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}" class="variant-swatch" data-variant-id="{{ variant.id }}">
+                                    <input
+                                      type="radio"
+                                      id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                                      name="{{ option.name }}"
+                                      value="{{ value | escape }}"
+                                      form="{{ product_form_id }}"
+                                      {% if option.selected_value == value %}
+                                        checked
+                                      {% endif %}
+                                    >
+                                    {% render 'product-thumbnail', media: variant.featured_media, position: forloop.index, modal_id: section.id, disable_modal: true %}
+                                  </label>
+                                </li>
+                              {%- endfor -%}
+                              </ul>
+                            </fieldset>
+
+                        {%- endfor -%}
+
+                        <div class="slider-buttons no-js-hidden quick-add-hidden{% if hide_slider %} small-hide{% endif %}">
+                          <button
+                            type="button"
+                            class="slider-button slider-button--prev"
+                            name="previous"
+                            aria-label="{{ 'general.slider.previous_slide' | t }}"
+                          >
+                            {% render 'icon-caret' %}
+                          </button>
+                          <div class="slider-counter caption">
+                            <span class="slider-counter--current">1</span>
+                            <span aria-hidden="true"> / </span>
+                            <span class="visually-hidden">{{ 'general.slider.of' | t }}</span>
+                            <span class="slider-counter--total">{{ media_count }}</span>
+                          </div>
+                          <button
+                            type="button"
+                            class="slider-button slider-button--next"
+                            name="next"
+                            aria-label="{{ 'general.slider.next_slide' | t }}"
+                          >
+                            {% render 'icon-caret' %}
+                          </button>
+                        </div>
+                    </slider-component>
+
+
+                    <script type="application/json">
+                      {{ product.variants | json }}
+                    </script>
+
+
+                  </variant-swatches>
                 {%- else -%}
                   <variant-selects
                     class="no-js-hidden"
@@ -800,9 +931,9 @@
           {% endif %}
           aria-label="{{ 'products.product.media.gallery_viewer' | t }}"
           data-desktop-layout="{{ section.settings.gallery_layout }}"
-        >
+          >
           <div id="GalleryStatus-{{ section.id }}-right" class="visually-hidden" role="status"></div>
-          <slider-component id="GalleryViewer-{{ section.id }}-right" class="slider-mobile-gutter">
+          <slider-component id="GalleryViewer-{{ section.id }}-right" class="slider-mobile-gutter main">
             <ul
               id="Slider-Gallery-{{ section.id }}-right"
               class="product__media-list contains-media grid grid--peek list-unstyled slider slider--mobile"
@@ -1230,11 +1361,15 @@
               "label": "t:sections.main-product.blocks.variant_picker.settings.picker_type.options__1.label"
             },
             {
+              "value": "swatches",
+              "label": "t:sections.main-product.blocks.variant_picker.settings.picker_type.options__1.label"
+            },
+            {
               "value": "button",
               "label": "t:sections.main-product.blocks.variant_picker.settings.picker_type.options__2.label"
             }
           ],
-          "default": "button",
+          "default": "swatches",
           "label": "t:sections.main-product.blocks.variant_picker.settings.picker_type.label"
         }
       ]

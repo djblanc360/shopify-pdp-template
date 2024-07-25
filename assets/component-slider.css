@@ -70,6 +70,9 @@ slider-component.slider-component-full-width {
 }
 
 @media screen and (min-width: 750px) {
+  slider-component.main {
+    width: 80%;
+  }
   .slider.slider--tablet-up {
     position: relative;
     flex-wrap: inherit;

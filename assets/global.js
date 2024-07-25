@@ -137,7 +137,7 @@ function onKeyUpEscape(event) {
 }
 
 class QuantityInput extends HTMLElement {
-  constructor() {
+  constructor() { 
     super();
     this.input = this.querySelector('input');
     this.changeEvent = new Event('change', { bubbles: true })
@@ -145,6 +145,7 @@ class QuantityInput extends HTMLElement {
     this.querySelectorAll('button').forEach(
       (button) => button.addEventListener('click', this.onButtonClick.bind(this))
     );
+    console.log('QuantityInput - input', this.input.value);
   }
 
   onButtonClick(event) {
@@ -157,6 +158,50 @@ class QuantityInput extends HTMLElement {
 }
 
 customElements.define('quantity-input', QuantityInput);
+
+class QuantityTotalPrice extends QuantityInput {
+  constructor() {
+    super();
+    this.totalPrice = 0;
+    console.log('QuantityTotalPrice - input', this.input.value);
+
+  }
+
+  connectedCallback() {
+    if (!this.input) {
+      console.error('no input found');
+      return;
+    }
+    this.totalPriceElement = this.querySelector('.quantity__total-price');
+    if (!this.totalPriceElement) {
+      console.error('no total price element found');
+      return;
+    }
+
+    console.log('QuantityTotalPrice - input', this.input.value);
+    this.currencySymbol = this.extractCurrencySymbol();
+    this.updateTotalPrice();
+    this.input.addEventListener('change', () => this.updateTotalPrice());
+  }
+
+  extractCurrencySymbol() {
+    const priceString = this.querySelector('.quantity__total-price').textContent.trim();
+    const currencySymbol = priceString.match(/[^0-9.,\s]/)[0]; // get first non-num char as currency symbol
+    console.log('QuantityTotalPrice - currencySymbol', currencySymbol);
+    return currencySymbol;
+  }
+
+  updateTotalPrice() {
+    const quantity = parseInt(this.input.value);
+    const price = parseInt(this.input.getAttribute('price'), 10) / 100;
+    console.log('QuantityTotalPrice - Quantity changed to:', quantity, 'Total price:',  price * quantity);
+    this.totalPrice = price * quantity;
+    this.totalPriceElement.textContent = `${this.currencySymbol}${this.totalPrice.toFixed(2)}`;
+  }
+  
+}
+
+customElements.define('quantity-total-price', QuantityTotalPrice);
 
 function debounce(fn, wait) {
   let t;
@@ -749,6 +794,37 @@ class SlideshowComponent extends SliderComponent {
 
 customElements.define('slideshow-component', SlideshowComponent);
 
+class GridComponent extends HTMLElement {
+  constructor() {
+    super();
+    this.grid = this.querySelector('[id^="Grid-"]');
+    this.gridItems = this.querySelectorAll('[id^="GridItem-"]');
+    this.currentPageElement = this.querySelector('.grid-counter--current');
+
+    this.initPages();
+
+  }
+
+
+  initPages() {
+    this.gridItemsToShow = Array.from(this.gridItems).filter(element => element.clientWidth > 0);
+    this.update();
+  }
+
+  resetPages() {
+    this.gridItems = this.querySelectorAll('[id^="GridItem-"]');
+    this.initPages();
+  }
+
+  update() {
+    const previousPage = this.currentPage;
+    this.currentPage = Math.round(this.grid.scrollTop / this.gridItemOffset) + 1;
+  }
+
+}
+
+customElements.define('grid-component', GridComponent);
+      
 class VariantSelects extends HTMLElement {
   constructor() {
     super();
@@ -905,6 +981,47 @@ class VariantRadios extends VariantSelects {
 }
 
 customElements.define('variant-radios', VariantRadios);
+
+class VariantSwatches extends VariantSelects {
+  constructor() {
+    super();
+    // this.gridComponent = this.querySelector('grid-component');
+    // this.sliderComponent = this.querySelector('slider-component');
+    // console.log('gridComponent: ', this.gridComponent);
+  }
+
+  connectedCallback() {
+    this.updateOptions();
+  }
+
+  getOptions() {
+    // console.log('getOptions');
+
+
+  }
+
+  updateOptions() {
+    // const sets = Array.from(this.querySelectorAll('ul'));
+    // sets.forEach((set) => {
+    //   set.querySelectorAll('li input')
+    //   this.options = Array.from(set.querySelectorAll('li input')).filter((radio) => radio.checked).map((radio) => radio.value);
+    //   console.log('this.options: ', this.options);
+    // });
+    
+    // const fieldsets = Array.from(this.querySelectorAll('ul'));
+    // this.options = fieldsets.map((fieldset) => {
+    //   return Array.from(fieldset.querySelectorAll('li input')).find((radio) => radio.checked).value;
+    // });
+    const fieldsets = Array.from(this.querySelectorAll('ul'));
+    this.options = fieldsets.map((fieldset) => {
+      const checkedRadio = Array.from(fieldset.querySelectorAll('li input')).find((radio) => radio.checked);
+      return checkedRadio ? checkedRadio.value : null;
+    }).filter(value => value !== null);
+    console.log('this.options: ', this.options);
+  }
+}
+
+customElements.define('variant-swatches', VariantSwatches);
 
 class ProductRecommendations extends HTMLElement {
   constructor() {

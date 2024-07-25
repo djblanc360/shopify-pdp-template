@@ -13,13 +13,15 @@
     - xr_button: {Boolean} Renders the "View in your space" button (shopify-xr-button) if the media is a 3D Model
     - media_width: {Float} The width percentage that the media column occupies on desktop.
     - lazy_load: {Boolean} Image should be lazy loaded. Default: true (optional)
+    - disable_modal: {Boolean} Disables modal. Default: false (optional)
 
     Usage:
     {% render 'product-thumbnail',
       media: media,
       position: forloop.index,
       loop: section.settings.enable_video_looping,
-      modal_id: section.id
+      modal_id: section.id,
+      disable_modal: true
     %}
 {% endcomment %}
 
@@ -70,6 +72,7 @@
 </noscript>
 
 <modal-opener class="product__modal-opener product__modal-opener--{{ media.media_type }} no-js-hidden" data-modal="#ProductModal-{{ modal_id }}">
+  {%- unless disable_modal == true -%}
   <span class="product__media-icon motion-reduce quick-add-hidden" aria-hidden="true">
     {%- liquid
       case media.media_type
@@ -82,6 +85,7 @@
       endcase
     -%}
   </span>
+{%- endunless -%}
 
   <div class="product__media media media--transparent gradient global-media-settings" style="padding-top: {{ 1 | divided_by: media.preview_image.aspect_ratio | times: 100 }}%;">
     {{ media.preview_image | image_url: width: 1946 | image_tag:
@@ -91,11 +95,13 @@
       alt: media.preview_image.alt | escape
     }}
   </div>
+  {%- unless disable_modal == true -%}
   <button class="product__media-toggle quick-add-hidden" type="button" aria-haspopup="dialog" data-media-id="{{ media.id }}">
     <span class="visually-hidden">
       {{ 'products.product.media.open_media' | t: index: position }}
     </span>
   </button>
+  {%- endunless -%}
 </modal-opener>
 
 {%- if media.media_type != 'image' -%}
