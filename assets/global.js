@@ -145,7 +145,6 @@ class QuantityInput extends HTMLElement {
     this.querySelectorAll('button').forEach(
       (button) => button.addEventListener('click', this.onButtonClick.bind(this))
     );
-    console.log('QuantityInput - input', this.input.value);
   }
 
   onButtonClick(event) {
@@ -159,26 +158,25 @@ class QuantityInput extends HTMLElement {
 
 customElements.define('quantity-input', QuantityInput);
 
+/**
+ * @class QuantityTotalPrice
+ * @classdesc child class for updating total price based on quantity input
+ * @extends QuantityInput
+ */
 class QuantityTotalPrice extends QuantityInput {
   constructor() {
     super();
     this.totalPrice = 0;
-    console.log('QuantityTotalPrice - input', this.input.value);
 
   }
 
   connectedCallback() {
-    if (!this.input) {
-      console.error('no input found');
-      return;
-    }
-    this.totalPriceElement = this.querySelector('.quantity__total-price');
-    if (!this.totalPriceElement) {
-      console.error('no total price element found');
-      return;
-    }
+    if (!this.input) return;
 
-    console.log('QuantityTotalPrice - input', this.input.value);
+    this.totalPriceElement = this.querySelector('.quantity__total-price');
+    if (!this.totalPriceElement) return;
+
+    // console.log('QuantityTotalPrice - input', this.input.value);
     this.currencySymbol = this.extractCurrencySymbol();
     this.updateTotalPrice();
     this.input.addEventListener('change', () => this.updateTotalPrice());
@@ -187,14 +185,14 @@ class QuantityTotalPrice extends QuantityInput {
   extractCurrencySymbol() {
     const priceString = this.querySelector('.quantity__total-price').textContent.trim();
     const currencySymbol = priceString.match(/[^0-9.,\s]/)[0]; // get first non-num char as currency symbol
-    console.log('QuantityTotalPrice - currencySymbol', currencySymbol);
+    // console.log('QuantityTotalPrice - currencySymbol', currencySymbol);
     return currencySymbol;
   }
 
   updateTotalPrice() {
     const quantity = parseInt(this.input.value);
     const price = parseInt(this.input.getAttribute('price'), 10) / 100;
-    console.log('QuantityTotalPrice - Quantity changed to:', quantity, 'Total price:',  price * quantity);
+    // console.log('QuantityTotalPrice - Quantity changed to:', quantity, 'Total price:',  price * quantity);
     this.totalPrice = price * quantity;
     this.totalPriceElement.textContent = `${this.currencySymbol}${this.totalPrice.toFixed(2)}`;
   }
@@ -794,6 +792,13 @@ class SlideshowComponent extends SliderComponent {
 
 customElements.define('slideshow-component', SlideshowComponent);
 
+/**
+ * @class GridComponent
+ * @classdesc Grid component for displaying grid items
+ * based on SliderComponet class but probably not needed.
+ * Still saving for potential future use.
+ * @extends HTMLElement
+ */
 class GridComponent extends HTMLElement {
   constructor() {
     super();
@@ -802,7 +807,6 @@ class GridComponent extends HTMLElement {
     this.currentPageElement = this.querySelector('.grid-counter--current');
 
     this.initPages();
-
   }
 
 
@@ -982,43 +986,46 @@ class VariantRadios extends VariantSelects {
 
 customElements.define('variant-radios', VariantRadios);
 
+/**
+ * @class VariantSwatches
+ * @classdesc Variant swatches class for updating variant options.
+ * based on VariantRadios class
+ * @extends VariantSelects
+ */
 class VariantSwatches extends VariantSelects {
   constructor() {
     super();
-    // this.gridComponent = this.querySelector('grid-component');
-    // this.sliderComponent = this.querySelector('slider-component');
-    // console.log('gridComponent: ', this.gridComponent);
-  }
-
-  connectedCallback() {
     this.updateOptions();
   }
 
-  getOptions() {
-    // console.log('getOptions');
-
-
-  }
 
   updateOptions() {
-    // const sets = Array.from(this.querySelectorAll('ul'));
-    // sets.forEach((set) => {
-    //   set.querySelectorAll('li input')
-    //   this.options = Array.from(set.querySelectorAll('li input')).filter((radio) => radio.checked).map((radio) => radio.value);
-    //   console.log('this.options: ', this.options);
-    // });
-    
-    // const fieldsets = Array.from(this.querySelectorAll('ul'));
-    // this.options = fieldsets.map((fieldset) => {
-    //   return Array.from(fieldset.querySelectorAll('li input')).find((radio) => radio.checked).value;
-    // });
     const fieldsets = Array.from(this.querySelectorAll('ul'));
     this.options = fieldsets.map((fieldset) => {
-      const checkedRadio = Array.from(fieldset.querySelectorAll('li input')).find((radio) => radio.checked);
-      return checkedRadio ? checkedRadio.value : null;
+      const radios = Array.from(fieldset.querySelectorAll('li input'));
+      const checkedRadio = radios.find((radio) => radio.checked);
+      if (checkedRadio) {
+        radios.forEach((radio) => {
+          radio.checked = false;
+          radio.removeAttribute('checked');
+        });
+        // console.log('VariantSwatches - updateOptions', checkedRadio, checkedRadio.value);
+        checkedRadio.checked = true
+        checkedRadio.setAttribute('checked', 'checked');
+        return checkedRadio.value;
+      } else {
+        return null;
+      }
+
     }).filter(value => value !== null);
-    console.log('this.options: ', this.options);
+    // console.log('VariantSwatches - updateOptions', this.options);
+    
+    const legends = Array.from(this.querySelectorAll('legend'));
+    legends.forEach((legend, index) => {
+      legend.textContent = this.options[index];
+    })
   }
+
 }
 
 customElements.define('variant-swatches', VariantSwatches);

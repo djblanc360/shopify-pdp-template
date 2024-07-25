@@ -270,6 +270,25 @@ variant-swatches slider-component .thumbnail-list .thumbnail-list__item::before 
   padding-bottom: 0;
 }
 
+
+variant-swatches label {
+  cursor: pointer;
+}
+variant-swatches label:hover {
+  opacity: 0.7;
+}
+variant-swatches li:active, 
+variant-swatches li:focus, 
+variant-swatches li:focus-visible, 
+variant-swatches li:target, 
+variant-swatches li:visited {
+  border: 2px solid black;
+}
+variant-swatches li label input[type="radio"]:checked {
+  border: 2px solid black;
+}
+
+
 @media screen and (min-width: 750px) {
   variant-swatches grid-component {
     display: flex;
@@ -277,7 +296,7 @@ variant-swatches slider-component .thumbnail-list .thumbnail-list__item::before 
   variant-swatches .thumbnail-grid {
     display: flex;
   }
-  .thumbnail-grid .grid__item {
+  variant-swatches .thumbnail-grid .grid__item {
     width: 90px;
   }
   .product--thumbnail_slider variant-swatches slider-component.thumbnail-slider {
