@@ -384,7 +384,8 @@
                   {{ 'products.product.quantity.label' | t }}
                 </label>
 
-                <quantity-input class="quantity">
+                <quantity-total-price>
+                  <div class="quantity">
                   <button class="quantity__button no-js-hidden" name="minus" type="button">
                     <span class="visually-hidden">
                       {{- 'products.product.quantity.decrease' | t: product: product.title | escape -}}
@@ -399,6 +400,9 @@
                     min="1"
                     value="1"
                     form="{{ product_form_id }}"
+                    price="{{ product.selected_or_first_available_variant.price }}"
+                    currency="{{ shop.currency }}"
+                    currencySymbol="{{ shop.currency_symbol }}"
                   >
                   <button class="quantity__button no-js-hidden" name="plus" type="button">
                     <span class="visually-hidden">
@@ -406,7 +410,19 @@
                     </span>
                     {% render 'icon-plus' %}
                   </button>
-                </quantity-input>
+                  </div>
+
+                  <div class="quantity__total-price-wrapper">
+                    <span>total:</span>
+                    <span class="quantity__total-price" aria-hidden="true">
+                      {{ product.selected_or_first_available_variant.price | money }}
+                    </span>
+                    <span class="visually-hidden">
+                      {{ 'products.product.quantity.total_price' | t: product: product.title | escape }}
+                    </span>
+                  </div>
+                </quantity-total-price>
+                
               </div>
             {%- when 'popup' -%}
               <modal-opener
@@ -519,7 +535,7 @@
                   
                         {%- for option in product.options_with_values -%}
                           <fieldset class="js product-form__input">
-                            <legend class="form__label">{{ option.name }}</legend>
+                            <legend class="form__label">{{ option.name }}: {{ option.selected_value }}</legend>
                             <ul
                               id="Grid-Thumbnails-{{ section.id }}"
                               class="list-unstyled thumbnail-grid"
@@ -558,7 +574,7 @@
                         {%- for option in product.options_with_values -%}
                           
                             <fieldset class="js product-form__input">
-                              <legend class="form__label">{{ option.name }}</legend>
+                              <legend class="form__label">{{ option.name }}: {{ option.selected_value }}</legend>
                               <ul id="Slider-{{ section.id }}" class="thumbnail-list list-unstyled slider slider--mobile slider--tablet-up grid grid--peek">
                               {%- for value in option.values -%}
                                 {%- assign variant = product.variants | where: "option1", value | first -%}

@@ -137,7 +137,7 @@ function onKeyUpEscape(event) {
 }
 
 class QuantityInput extends HTMLElement {
-  constructor() {
+  constructor() { 
     super();
     this.input = this.querySelector('input');
     this.changeEvent = new Event('change', { bubbles: true })
@@ -145,6 +145,7 @@ class QuantityInput extends HTMLElement {
     this.querySelectorAll('button').forEach(
       (button) => button.addEventListener('click', this.onButtonClick.bind(this))
     );
+    console.log('QuantityInput - input', this.input.value);
   }
 
   onButtonClick(event) {
@@ -157,6 +158,50 @@ class QuantityInput extends HTMLElement {
 }
 
 customElements.define('quantity-input', QuantityInput);
+
+class QuantityTotalPrice extends QuantityInput {
+  constructor() {
+    super();
+    this.totalPrice = 0;
+    console.log('QuantityTotalPrice - input', this.input.value);
+
+  }
+
+  connectedCallback() {
+    if (!this.input) {
+      console.error('no input found');
+      return;
+    }
+    this.totalPriceElement = this.querySelector('.quantity__total-price');
+    if (!this.totalPriceElement) {
+      console.error('no total price element found');
+      return;
+    }
+
+    console.log('QuantityTotalPrice - input', this.input.value);
+    this.currencySymbol = this.extractCurrencySymbol();
+    this.updateTotalPrice();
+    this.input.addEventListener('change', () => this.updateTotalPrice());
+  }
+
+  extractCurrencySymbol() {
+    const priceString = this.querySelector('.quantity__total-price').textContent.trim();
+    const currencySymbol = priceString.match(/[^0-9.,\s]/)[0]; // get first non-num char as currency symbol
+    console.log('QuantityTotalPrice - currencySymbol', currencySymbol);
+    return currencySymbol;
+  }
+
+  updateTotalPrice() {
+    const quantity = parseInt(this.input.value);
+    const price = parseInt(this.input.getAttribute('price'), 10) / 100;
+    console.log('QuantityTotalPrice - Quantity changed to:', quantity, 'Total price:',  price * quantity);
+    this.totalPrice = price * quantity;
+    this.totalPriceElement.textContent = `${this.currencySymbol}${this.totalPrice.toFixed(2)}`;
+  }
+  
+}
+
+customElements.define('quantity-total-price', QuantityTotalPrice);
 
 function debounce(fn, wait) {
   let t;
