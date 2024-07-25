@@ -535,7 +535,7 @@
                   
                         {%- for option in product.options_with_values -%}
                           <fieldset class="js product-form__input">
-                            <legend class="form__label">{{ option.name }}: {{ option.selected_value }}</legend>
+                            <legend class="form__label">{{ option.name }}: <span selected>{{ option.selected_value }}</span></legend>
                             <ul
                               id="Grid-Thumbnails-{{ section.id }}"
                               class="list-unstyled thumbnail-grid"
@@ -574,7 +574,7 @@
                         {%- for option in product.options_with_values -%}
                           
                             <fieldset class="js product-form__input">
-                              <legend class="form__label">{{ option.name }}: {{ option.selected_value }}</legend>
+                              <legend class="form__label">{{ option.name }}: <span selected>{{ option.selected_value }}</span></legend>
                               <ul id="Slider-{{ section.id }}" class="thumbnail-list list-unstyled slider slider--mobile slider--tablet-up grid grid--peek">
                               {%- for value in option.values -%}
                                 {%- assign variant = product.variants | where: "option1", value | first -%}

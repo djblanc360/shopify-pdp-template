@@ -2084,12 +2084,6 @@ input[type='checkbox'] {
   -moz-appearance: textfield;
 }
 
-.quantity__total-price-wrapper {
-
-}
-
-.quantity__total-price {}
-
 /* component-modal */
 .modal__toggle {
   list-style-type: none;
