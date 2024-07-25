@@ -1,5 +1,5 @@
 if (!customElements.get('product-form')) {
-  customElements.define('product-form', class ProductForm extends HTMLElement {
+  class ProductForm extends HTMLElement {
     constructor() {
       super();
 
@@ -84,5 +84,14 @@ if (!customElements.get('product-form')) {
         this.errorMessage.textContent = errorMessage;
       }
     }
-  });
+  }
+
+  customElements.define('product-form', ProductForm);
+  class ProductFormSticky extends ProductForm {
+    constructor() {
+      super();
+    }
+  }
+
+  customElements.define('product-form-sticky', ProductFormSticky);
 }

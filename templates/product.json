@@ -201,12 +201,16 @@
         "padding_top": 36,
         "padding_bottom": 28
       }
+    },
+    "product-form-sticky": {
+      "type": "product-form-sticky"
     }
   },
   "order": [
     "main",
     "image-with-text",
     "multicolumn",
-    "product-recommendations"
+    "product-recommendations",
+    "product-form-sticky"
   ]
 }
